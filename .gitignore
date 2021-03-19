@@ -3,3 +3,6 @@
 
 *.out
 *.o
+
+Problem\ 2.exe
+glut32.dll
