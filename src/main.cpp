@@ -10,7 +10,6 @@
 
 double cameraHeight;
 double cameraAngle;
-int drawgrid;
 int drawaxes;
 double angle;
 
@@ -20,7 +19,6 @@ void keyboardListener(unsigned char key, int x,int y){
     switch(key){
 
         case '1':
-            drawgrid=1-drawgrid;
             break;
 
         default:
@@ -123,17 +121,12 @@ void display(){
     //add objects
 
     drawAxes(drawaxes);
-    drawGrid(drawgrid);
 
-    //glColor3f(1,0,0);
-    //drawSquare(10);
+    glColor3f(0,1,0);
+    drawSquare(150);
 
-    //drawCircle(30,24);
-
-    //drawCone(20,50,24);
-
-    //drawSphere(30,24,20);
-
+    glColor3f(1,0,0);
+    drawCircle(100,50);
 
 
 
@@ -150,7 +143,6 @@ void animate(){
 
 void init(){
     //codes for initialization
-    drawgrid=0;
     drawaxes=1;
     cameraHeight=150.0;
     cameraAngle=1.0;
