@@ -24,12 +24,19 @@ int speed;
 bubble bubbles[5];
 int inCircle[5];
 
+enum state {
+    playing, paused
+} anim_state;
 
 void keyboardListener(unsigned char key, int x,int y)
 {
     switch(key){
 
-        case '1':
+        case 'p':
+            if (anim_state == playing)
+                anim_state = paused;
+            else
+                anim_state = playing;
             break;
 
         default:
@@ -42,17 +49,15 @@ void specialKeyListener(int key, int x,int y)
 {
     switch(key){
         case GLUT_KEY_DOWN:     //down arrow key
-            cameraHeight -= 3.0;
+            speed = (speed-1 < 1) ? speed : speed-1;
             break;
         case GLUT_KEY_UP:       // up arrow key
-            cameraHeight += 3.0;
+            speed = (speed+1 > 5) ? speed : speed+1;
             break;
 
         case GLUT_KEY_RIGHT:
-            cameraAngle += 0.03;
             break;
         case GLUT_KEY_LEFT:
-            cameraAngle -= 0.03;
             break;
 
         case GLUT_KEY_PAGE_UP:
@@ -78,9 +83,9 @@ void mouseListener(int button, int state, int x, int y)
 {    //x, y is the x-y of the screen (2D)
     switch(button){
         case GLUT_LEFT_BUTTON:
-            if(state == GLUT_DOWN){     // 2 times?? in ONE click? -- solution is checking DOWN or UP
-                drawaxes=1-drawaxes;
-            }
+            // if(state == GLUT_DOWN){     // 2 times?? in ONE click? -- solution is checking DOWN or UP
+            //     drawaxes=1-drawaxes;
+            // }
             break;
 
         case GLUT_RIGHT_BUTTON:
@@ -292,8 +297,8 @@ void collideWithBubble(bubble& b0, bubble& b1)
 void animate(){
     angle+=0.05;
 
-    updateBubbles();
-
+    if (anim_state == playing)
+        updateBubbles();
 
     //codes for any changes in Models, Camera
     glutPostRedisplay();
@@ -310,6 +315,7 @@ void init(){
     circleRadius = 100;
     bubbleRadius = 10;
     speed = 1;
+    anim_state = playing;
 
     srand(time(0));
 
