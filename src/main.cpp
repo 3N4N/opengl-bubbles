@@ -16,15 +16,17 @@ double cameraAngle;
 int drawaxes;
 double angle;
 
-double squareSide = 150;
-double circleRadius = 100;
-double bubbleRadius = 10;
+double squareSide;
+double circleRadius;
+double bubbleRadius;
+int speed;
 
 bubble bubbles[5];
 int inCircle[5];
 
 
-void keyboardListener(unsigned char key, int x,int y){
+void keyboardListener(unsigned char key, int x,int y)
+{
     switch(key){
 
         case '1':
@@ -36,7 +38,8 @@ void keyboardListener(unsigned char key, int x,int y){
 }
 
 
-void specialKeyListener(int key, int x,int y){
+void specialKeyListener(int key, int x,int y)
+{
     switch(key){
         case GLUT_KEY_DOWN:     //down arrow key
             cameraHeight -= 3.0;
@@ -71,7 +74,8 @@ void specialKeyListener(int key, int x,int y){
 }
 
 
-void mouseListener(int button, int state, int x, int y){    //x, y is the x-y of the screen (2D)
+void mouseListener(int button, int state, int x, int y)
+{    //x, y is the x-y of the screen (2D)
     switch(button){
         case GLUT_LEFT_BUTTON:
             if(state == GLUT_DOWN){     // 2 times?? in ONE click? -- solution is checking DOWN or UP
@@ -93,8 +97,10 @@ void mouseListener(int button, int state, int x, int y){    //x, y is the x-y of
 }
 
 
+void updateBubbles();
 
-void display(){
+void display()
+{
 
     //clear the display
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,12 +164,13 @@ void collideWithSquare(bubble&);
 void collideWithCircle(bubble&);
 void collideWithBubble(bubble&, bubble&);
 
-void updateBubbles() {
+void updateBubbles()
+{
     double distance;
 
     for (int i = 0; i < 5; i++) {
-        bubbles[i].pos.x += bubbles[i].speed.x;
-        bubbles[i].pos.y += bubbles[i].speed.y;
+        bubbles[i].pos.x += bubbles[i].speed.x * speed;
+        bubbles[i].pos.y += bubbles[i].speed.y * speed;
         distance = sqrt(pow(bubbles[i].pos.x,2)+pow(bubbles[i].pos.y,2));
 
         if (!inCircle[i]) {
@@ -174,7 +181,8 @@ void updateBubbles() {
         } else {
             collideWithCircle(bubbles[i]);
             for (int j = i+1; j < 5; j++) {
-                collideWithBubble(bubbles[i], bubbles[j]);
+                if (inCircle[j])
+                    collideWithBubble(bubbles[i], bubbles[j]);
             }
         }
     }
@@ -226,34 +234,57 @@ void collideWithCircle(bubble& b)
 
     if (distance >= circleRadius - bubbleRadius) {
         vec2 norm, _norm;
-        _norm.x = b.pos.x >= 0 ? b.pos.x + bubbleRadius : b.pos.x - bubbleRadius;
-        _norm.y = b.pos.y >= 0 ? b.pos.y + bubbleRadius : b.pos.y - bubbleRadius;
+        _norm.x = b.pos.x;
+        _norm.y = b.pos.y;
+        _norm.x *= -1;
+        _norm.y *= -1;
         norm.x = _norm.x / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
         norm.y = _norm.y / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
 
         vec2 _speed = b.speed;
-        b.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
-        b.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+        double dp = dot_product(_speed, norm);
+        if (dp < 0) {
+            b.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
+            b.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+        }
     }
 }
 
 void collideWithBubble(bubble& b0, bubble& b1)
 {
     double distance = sqrt(pow(b1.pos.x-b0.pos.x,2)+pow(b1.pos.y-b0.pos.y,2));
+    double distance1 = sqrt(pow((b1.pos.x+b1.speed.x*speed)-(b0.pos.x+b0.speed.x*speed),2)
+                            +pow((b1.pos.y+b1.speed.y*speed)-(b0.pos.y+b0.speed.y*speed),2));
+
+    if (distance1 > distance) {
+        return;
+    }
+
     if (distance <= 2*bubbleRadius) {
         vec2 norm, _norm;
+        _norm.x = b0.pos.x - b1.pos.x;
+        _norm.y = b0.pos.y - b1.pos.y;
+        norm.x = _norm.x / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
+        norm.y = _norm.y / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
+
+        vec2 _speed = b0.speed;
+        double dp = dot_product(_speed, norm);
+        if (dp < 0) {
+            b0.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
+            b0.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+        }
+
         _norm.x = b1.pos.x - b0.pos.x;
         _norm.y = b1.pos.y - b0.pos.y;
         norm.x = _norm.x / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
-        norm.y = (1*_norm.y) / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
-
-        vec2 _speed = b0.speed;
-        b0.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
-        b0.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+        norm.y = _norm.y / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
 
         _speed = b1.speed;
-        b1.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
-        b1.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+        dp = dot_product(_speed, norm);
+        if (dp < 0) {
+            b1.speed.x = _speed.x - 2 * dp * norm.x;
+            b1.speed.y = _speed.y - 2 * dp * norm.y;
+        }
     }
 }
 
@@ -274,6 +305,11 @@ void init(){
     cameraHeight=150.0;
     cameraAngle=1.0;
     angle=0;
+
+    squareSide = 150;
+    circleRadius = 100;
+    bubbleRadius = 10;
+    speed = 1;
 
     srand(time(0));
 
