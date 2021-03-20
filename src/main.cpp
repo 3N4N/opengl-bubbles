@@ -1,9 +1,12 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include<math.h>
+#include<time.h>
 
 #include <GL/glut.h>
 
 #include "point.h"
+#include "bubble.h"
 #include "glutshapes.h"
 
 #define pi (2*acos(0.0))
@@ -13,6 +16,11 @@ double cameraAngle;
 int drawaxes;
 double angle;
 
+double squareSide = 150;
+double circleRadius = 100;
+double bubbleRadius = 10;
+
+bubble bubbles[5];
 
 
 void keyboardListener(unsigned char key, int x,int y){
@@ -123,10 +131,21 @@ void display(){
     drawAxes(drawaxes);
 
     glColor3f(0,1,0);
-    drawSquare(150);
+    drawSquare(squareSide);
 
     glColor3f(1,0,0);
-    drawCircle(100,50);
+    drawCircle(circleRadius,50);
+
+    for (int i = 0; i < 5; i++) {
+        if (bubbles[i].pos.x - bubbleRadius >= -1*squareSide
+            && bubbles[i].pos.y - bubbleRadius >= -1*squareSide
+            && bubbles[i].pos.x + bubbleRadius <= squareSide
+            && bubbles[i].pos.y + bubbleRadius <= squareSide) {
+            glTranslatef(bubbles[i].pos.x, bubbles[i].pos.y,0);
+            drawCircle(bubbleRadius,20);
+            glTranslatef(-1*bubbles[i].pos.x, -1*bubbles[i].pos.y,0);
+        }
+    }
 
 
 
@@ -137,6 +156,10 @@ void display(){
 
 void animate(){
     angle+=0.05;
+    for (int i = 0; i < 5; i++) {
+        bubbles[i].pos.x += bubbles[i].speed.x;
+        bubbles[i].pos.y += bubbles[i].speed.y;
+    }
     //codes for any changes in Models, Camera
     glutPostRedisplay();
 }
@@ -147,6 +170,16 @@ void init(){
     cameraHeight=150.0;
     cameraAngle=1.0;
     angle=0;
+
+    srand(time(0));
+
+    for (int i = 0; i < 5; i++) {
+        bubbles[i].pos.x = -1*squareSide;
+        bubbles[i].pos.y = -1*squareSide;
+        bubbles[i].speed.x = (double) rand() / RAND_MAX;
+        bubbles[i].speed.y = (double) rand() / RAND_MAX;
+        printf("%f,%f\n",bubbles[i].speed.x,bubbles[i].speed.y);
+    }
 
     //clear the screen
     glClearColor(0,0,0,0);
