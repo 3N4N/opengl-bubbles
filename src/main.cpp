@@ -159,6 +159,46 @@ void animate(){
     for (int i = 0; i < 5; i++) {
         bubbles[i].pos.x += bubbles[i].speed.x;
         bubbles[i].pos.y += bubbles[i].speed.y;
+
+        if (bubbles[i].pos.x + bubbleRadius >= squareSide
+            && bubbles[i].pos.y + bubbleRadius >= squareSide) {
+            bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.x + bubbleRadius >= squareSide
+                 && bubbles[i].pos.y - bubbleRadius <= -1*squareSide) {
+            bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.x - bubbleRadius <= -1*squareSide
+                 && bubbles[i].pos.y - bubbleRadius <= -1*squareSide) {
+            bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.x - bubbleRadius <= -1*squareSide
+                 && bubbles[i].pos.y + bubbleRadius >= squareSide) {
+            bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+        // if (bubbles[i].pos.x + bubbleRadius >= squareSide) {
+        else if (bubbles[i].pos.x + bubbleRadius >= squareSide) {
+            bubbles[i].speed.x *= -1;
+            // bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.x - bubbleRadius <= -1*squareSide) {
+            bubbles[i].speed.x *= -1;
+            // bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.y + bubbleRadius >= squareSide) {
+            // bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+        else if (bubbles[i].pos.y - bubbleRadius <= -1*squareSide) {
+            // bubbles[i].speed.x *= -1;
+            bubbles[i].speed.y *= -1;
+        }
+
+
     }
     //codes for any changes in Models, Camera
     glutPostRedisplay();
@@ -166,7 +206,7 @@ void animate(){
 
 void init(){
     //codes for initialization
-    drawaxes=1;
+    drawaxes=0;
     cameraHeight=150.0;
     cameraAngle=1.0;
     angle=0;
@@ -174,8 +214,8 @@ void init(){
     srand(time(0));
 
     for (int i = 0; i < 5; i++) {
-        bubbles[i].pos.x = -1*squareSide;
-        bubbles[i].pos.y = -1*squareSide;
+        bubbles[i].pos.x = -1*squareSide + bubbleRadius;
+        bubbles[i].pos.y = -1*squareSide + bubbleRadius;
         bubbles[i].speed.x = (double) rand() / RAND_MAX;
         bubbles[i].speed.y = (double) rand() / RAND_MAX;
         printf("%f,%f\n",bubbles[i].speed.x,bubbles[i].speed.y);
