@@ -156,6 +156,8 @@ void display(){
 
 void collideWithSquare(bubble&);
 void collideWithCircle(bubble&);
+void collideWithBubble(bubble&, bubble&);
+
 void updateBubbles() {
     double distance;
 
@@ -171,6 +173,9 @@ void updateBubbles() {
             }
         } else {
             collideWithCircle(bubbles[i]);
+            for (int j = i+1; j < 5; j++) {
+                collideWithBubble(bubbles[i], bubbles[j]);
+            }
         }
     }
 }
@@ -225,11 +230,33 @@ void collideWithCircle(bubble& b)
         _norm.y = b.pos.y >= 0 ? b.pos.y + bubbleRadius : b.pos.y - bubbleRadius;
         norm.x = _norm.x / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
         norm.y = _norm.y / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
+
         vec2 _speed = b.speed;
         b.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
         b.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
     }
 }
+
+void collideWithBubble(bubble& b0, bubble& b1)
+{
+    double distance = sqrt(pow(b1.pos.x-b0.pos.x,2)+pow(b1.pos.y-b0.pos.y,2));
+    if (distance <= 2*bubbleRadius) {
+        vec2 norm, _norm;
+        _norm.x = b1.pos.x - b0.pos.x;
+        _norm.y = b1.pos.y - b0.pos.y;
+        norm.x = _norm.x / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
+        norm.y = (1*_norm.y) / sqrt(_norm.x*_norm.x + _norm.y*_norm.y);
+
+        vec2 _speed = b0.speed;
+        b0.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
+        b0.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+
+        _speed = b1.speed;
+        b1.speed.x = _speed.x - 2 * dot_product(_speed,norm) * norm.x;
+        b1.speed.y = _speed.y - 2 * dot_product(_speed,norm) * norm.y;
+    }
+}
+
 
 void animate(){
     angle+=0.05;
