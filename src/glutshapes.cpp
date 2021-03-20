@@ -41,7 +41,7 @@ void drawSquare(double a)
 void drawCircle(double radius,int segments)
 {
     int i;
-    struct point points[100];
+    struct point2 points[100];
     //generate points
     for(i=0;i<=segments;i++)
     {
